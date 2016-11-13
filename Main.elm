@@ -17,24 +17,28 @@ type alias Model =
 
 initialModel : Model
 initialModel =
-    Model [] (Comment "" "")
+    Model [] ( Comment "" "" )
 
 type Msg 
     = PostComment
     | UpdateAuthor String
     | UpdateContent String
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         PostComment ->
-            { comments = List.append model.comments [ model.form ]
-            , form = Comment "" ""
-            }
+            let
+                model = 
+                    { comments = List.append model.comments [ model.form ]
+                    , form = Comment "" ""
+                    }
+            in
+                ( model, Cmd.none )
         UpdateAuthor value ->
-            { model | form = Comment value model.form.content }
+            ( { model | form = Comment value model.form.content }, Cmd.none )
         UpdateContent value ->
-            { model | form = Comment model.form.author value }
+            ( { model | form = Comment model.form.author value }, Cmd.none )
 
 pluralize : String -> Int -> String
 pluralize name count = 
@@ -79,8 +83,9 @@ view model =
              , model |> toString |> text
             ]
 main =
-   Html.App.beginnerProgram
-   { model = initialModel
+   Html.App.program
+   { init = ( initialModel, Cmd.none )
    , update = update
+   , subscriptions = (\n -> Sub.none)
    , view = view
    }
